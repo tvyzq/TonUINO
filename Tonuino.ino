@@ -20,6 +20,9 @@
 // uncomment the below line to enable five button support
 //#define FIVEBUTTONS
 
+// uncomment the below line to enable five button support
+//#define TEST
+
 static const uint32_t cardCookie = 322417479;
 
 // DFPlayer Mini
