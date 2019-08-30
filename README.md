@@ -1,10 +1,9 @@
-# Angepasste TonUINO Version
+# Testversion von neuen Funktion (Work in progress)
 
-Als Grundlage wird die originale 2.1 DEV Vesion genommen.
-Zusätzlich wurden die folgenden Erweiterungen hinzugefügt die über das auskommentieren am Anfang der ino Datei rausgenommen werden kann.
+Hier werden neue Funktionen getestet, sodass der Code noch Fehler aufweisen könnte oder noch nicht vollständig ist.
 
-## JACKDETECT
-- Kopfhörer erkannt
+Folgende Funktionen werden im Moment entwickelt und getestest.
 
-## LED Strip und Ring
-- Integration
+## TonUINO Gitarre
+- Entwicklung von Animationen die gemeinsam bei gegenüberliegenden LED Strips
+
