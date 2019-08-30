@@ -24,7 +24,7 @@
 //#define JACKDETECT
 
 // Integration von einem LED Strip oder Ring (angepasst an die Anzahl der LEDs) - zum aktivieren // in den folgenden Zeilen löschen
-//#define LED_SR        // uncomment the below line to enable LED Strip and Ring support
+#define LED_SR        // uncomment the below line to enable LED Strip and Ring support
 //#define LED_SR_Switch // Möglichkeit die LEDs über die Tasten ein- und auszuschalten
 //#define LED_SR_Powersafe // Möglichkeit die LEDs über die Tasten ein- und auszuschalten
 
