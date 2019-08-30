@@ -61,6 +61,7 @@ uint8_t x;
 uint8_t y;
 uint8_t z;
 uint8_t i;
+//uint8_t g;
 
 // Datenvarbiablen
 uint32_t lsrColorUp = strip.Color(0, 255, 0);   // Farbe wird bei Animation nächstes Lied verwendet
@@ -1158,7 +1159,7 @@ if (lsrAnimationMode == 0 && loopCountdown == 0 && isPlaying() == true && knownC
   {
     for (i = 0; i < strip.numPixels(); i++)
     {
-      strip.setPixelColor((i + y) % strip.numPixels(), lsrColorR[i], lsrColorG[i], lsrColorB[i]);
+      strip.setPixelColor((calcLSRi(i) + y) % strip.numPixels(), lsrColorR[i], lsrColorG[i], lsrColorB[i]);
     }
     x++;
   } while (x < strip.numPixels());
@@ -1205,7 +1206,7 @@ if (lsrAnimationMode == 0 && loopCountdown == 0 && isPlaying() == false && known
   {
     for (i = 0; i < y +1 ; i++)
     {
-      strip.setPixelColor( y , lsrColorR[y], lsrColorG[y], lsrColorB[y]);
+      strip.setPixelColor( calcLSRi(y) , lsrColorR[y], lsrColorG[y], lsrColorB[y]);
     }
     x++;
   } while (x < y + 1);
@@ -1243,10 +1244,10 @@ if (lsrAnimationMode == 1 && loopCountdown == 0)
 
 
   if(lsrAnimationTrackMode == 1){
-    z = y ;
+    z = calcLSRi(y) ;
   }
   if(lsrAnimationTrackMode == 2){
-    z = strip.numPixels() - y ;
+    z = strip.numPixels() - calcLSRi(y) ;
   }
   
   x=0;  
@@ -1309,7 +1310,7 @@ if (lsrAnimationMode == 2 && loopCountdown == 0)
   {
     for (i = 0; i < volumeScopeAmount + 1; i++)
     {
-      strip.setPixelColor(i, lsrColorR[i], lsrColorG[i], lsrColorB[i]);
+      strip.setPixelColor(calcLSRi(i), lsrColorR[i], lsrColorG[i], lsrColorB[i]);
     }
     x++;
   } while (x < (volumeScopeAmount + 1));
@@ -2195,4 +2196,14 @@ bool checkTwo ( uint8_t a[], uint8_t b[] ) {
     }
   }
   return true;
+}
+
+uint8_t calcLSRi(uint8_t g){
+  if (g < strip.numPixels()/2 ){
+    return strip.numPixels()/2 - 1 - g;
+  }
+  if (g >= strip.numPixels()/2 ){
+    return g;
+  }
+
 }
