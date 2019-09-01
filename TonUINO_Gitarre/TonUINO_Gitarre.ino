@@ -12,7 +12,6 @@
     | | | . |   |  |  |-   -| | | |  |  |
     |_| |___|_|_|_____|_____|_|___|_____|
     TonUINO Version 2.1
-
     created by Thorsten Voß and licensed under GNU/GPL.
     Information and contribution at https://tonuino.de.
 */
@@ -79,6 +78,14 @@ uint32_t lsrColors;                             // Zwischenspeicher einer Farbe
 uint8_t lsrColorR[LED_COUNT];                   // Zwischenspeicher des Rot-Wertes für alle LEDs
 uint8_t lsrColorG[LED_COUNT];                   // Zwischenspeicher des Grün-Wertes für alle LEDs
 uint8_t lsrColorB[LED_COUNT];                   // Zwischenspeicher des Blau-Wertes für alle LEDs
+uint32_t rainbowColors;
+uint8_t rainbowColorR[LED_COUNT];                   // Zwischenspeicher des Rot-Wertes für alle LEDs
+uint8_t rainbowColorG[LED_COUNT];                   // Zwischenspeicher des Grün-Wertes für alle LEDs
+uint8_t rainbowColorB[LED_COUNT];
+
+uint8_t  savedR ;
+uint8_t  savedG ;
+uint8_t  savedB ;
 #endif
 
 #ifdef LED_SR_Switch
@@ -222,8 +229,8 @@ void resetSettings() {
   mySettings.cookie = cardCookie;
   mySettings.version = 2;
   mySettings.maxVolume = 25;
-  mySettings.minVolume = 5;
-  mySettings.initVolume = 15;
+  mySettings.minVolume = 1;
+  mySettings.initVolume = 1;
   mySettings.eq = 1;
   mySettings.locked = false;
   mySettings.standbyTimer = 0;
@@ -802,6 +809,21 @@ void setup() {
     loopCountdown = 0;
     animationCountdown = 1;
     lastDetectedTrack = 0;    
+
+  x=0;
+  do
+  {
+    for (i = 0; i < strip.numPixels(); i++)
+    {
+      rainbowColors = strip.ColorHSV(i * 65536 / strip.numPixels(), 255, 30);
+      //strip.setPixelColor(i, rainbowColors);
+      rainbowColorR[i] = (rainbowColors >> 16 & 0xFF);
+      rainbowColorG[i] = (rainbowColors >> 8 & 0xFF);
+      rainbowColorB[i] = (rainbowColors & 0xFF);
+    }
+    x++;
+  } while (x < strip.numPixels());
+    
   #endif  
 
   Serial.begin(115200); // Es gibt ein paar Debug Ausgaben über die serielle Schnittstelle
@@ -1096,7 +1118,7 @@ if (currentDetectedTrack != lastDetectedTrack)
   }
   lsrAnimationMode = 1;
   animationCountdown = strip.numPixels();
-  lsrLoopCountWait = 5; // Geschwindigkeit der Animation, desto größer desto langsamer
+  lsrLoopCountWait = 1; // Geschwindigkeit der Animation, desto größer desto langsamer
   y = 0;
 }
 
@@ -1135,6 +1157,8 @@ if (lsrAnimationMode == 0 && loopCountdown == 0 && isPlaying() == true && knownC
   lsrLoopCountWait = 5; // Geschwindigkeit der Animation, desto größer desto langsamer
   
   // Fabre definieren: hue Spektrum (Rainbow)
+  /*
+  x=0;
   do
   {
     for (i = 0; i < strip.numPixels(); i++)
@@ -1147,19 +1171,45 @@ if (lsrAnimationMode == 0 && loopCountdown == 0 && isPlaying() == true && knownC
     }
     x++;
   } while (x < strip.numPixels());
-
+*/
+/*
   // Animation definieren: Rotation im Uhrzeigersinn
   y++;
-  x = 0;
+
   if (y >= strip.numPixels())
   {
     y = 0;
+  }*/
+
+  savedR = rainbowColorR[0];
+  savedG = rainbowColorG[0];
+  savedB = rainbowColorB[0];
+  for(i = 0; i < strip.numPixels()-1; i++){
+      rainbowColorR[i] = rainbowColorR[i+1];
+      rainbowColorG[i] = rainbowColorG[i+1];
+      rainbowColorB[i] = rainbowColorB[i+1];
   }
+  rainbowColorR[strip.numPixels()-1] = savedR;
+  rainbowColorG[strip.numPixels()-1] = savedG;
+  rainbowColorB[strip.numPixels()-1] = savedB;
+
+
+  x = 0;
   do
   {
-    for (i = 0; i < strip.numPixels(); i++)
+    for (i = 0; i < strip.numPixels()/2; i++)
     {
-      strip.setPixelColor((calcLSRi(i) + y) % strip.numPixels(), lsrColorR[i], lsrColorG[i], lsrColorB[i]);
+      strip.setPixelColor((strip.numPixels()/2 - 1 -i), rainbowColorR[i], rainbowColorG[i], rainbowColorB[i]);
+    }
+    x++;
+  } while (x < strip.numPixels()/2);
+
+  x = strip.numPixels()/2;
+  do
+  {
+    for (i = strip.numPixels()/2; i < strip.numPixels(); i++)
+    {
+      strip.setPixelColor(i , rainbowColorR[i], rainbowColorG[i], rainbowColorB[i]);
     }
     x++;
   } while (x < strip.numPixels());
@@ -1247,9 +1297,11 @@ if (lsrAnimationMode == 1 && loopCountdown == 0)
     z = calcLSRi(y) ;
   }
   if(lsrAnimationTrackMode == 2){
-    z = strip.numPixels() - calcLSRi(y) ;
+    z = strip.numPixels() - 1 - calcLSRr(y) ;
   }
-  
+
+  strip.setPixelColor( z , lsrColorR[z], lsrColorG[z], lsrColorB[z]);
+  /*
   x=0;  
   do
   {
@@ -1258,7 +1310,7 @@ if (lsrAnimationMode == 1 && loopCountdown == 0)
       strip.setPixelColor( z , lsrColorR[y], lsrColorG[y], lsrColorB[y]);
     }
   x++;
-  } while (x < y + 1);
+  } while (x < y + 1);*/
   
   y++;
 
@@ -2205,5 +2257,12 @@ uint8_t calcLSRi(uint8_t g){
   if (g >= strip.numPixels()/2 ){
     return g;
   }
-
+}
+uint8_t calcLSRr(uint8_t f){
+  if (f < strip.numPixels()/2 ){
+    return  f;
+  }
+  if (f >= strip.numPixels()/2 ){
+    return f - 14 ;
+  }
 }
